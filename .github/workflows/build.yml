@@ -43,7 +43,20 @@ jobs:
           export OBJDUMP=llvm-objdump
           export STRIP=llvm-strip
 
+          # Generate initial defconfig
           make O=out vendor/msm8953-perf_defconfig
+
+          # Inject KernelSU Next configs
+          echo "CONFIG_KSU=y" >> out/.config
+          echo "CONFIG_KPROBES=y" >> out/.config
+          echo "CONFIG_HAVE_KPROBES=y" >> out/.config
+          echo "CONFIG_KPROBE_EVENTS=y" >> out/.config
+          echo "CONFIG_KSU_KPROBES_HOOK=y" >> out/.config
+
+          # Update config with dependencies
+          make O=out olddefconfig
+
+          # Compile kernel
           make -j$(nproc --all) O=out
 
       - name: Package with AnyKernel3
